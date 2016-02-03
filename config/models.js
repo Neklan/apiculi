@@ -17,7 +17,10 @@ module.exports = [{
             type: String,
             ref: "User"
         },
-        imageFile: String,
+        imageFile: {
+            type: String,
+            required: true,
+        },
         startDate: Number,
         endDate: Number,
         club: String,

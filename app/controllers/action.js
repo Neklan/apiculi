@@ -4,7 +4,12 @@ var mongoose = require('mongoose'),
 
 exports.create = function(req, res) {
     baseController.create(req, Action, function(status, result) {
-        res.status(status.code).json(result)
+        if(status.type == "success") {
+            res.status(status.code).json(result)
+        }else{
+            res.status(status.code).json(status)
+        }
+        
     })
 }
 
