@@ -66,7 +66,4 @@ exports.changePosition = function(req, Model, next) {
             next("Position must be number.")
         }
     })
-
-
-
 }

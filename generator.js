@@ -29,7 +29,7 @@ var generateModel = function(model, index) {
         "Schema = mongoose.Schema," +
         "paginate = require('mongoose-paginate')," +
         "config = require('../../config/config.js');\n\n"
-    /*var properties = "{"
+        /*var properties = "{"
     properties += "_id: {" +
         "type: String," +
         "default: uuid.v4" +
@@ -132,7 +132,7 @@ var generateRoute = function(model, request, type) {
         })
     }
 
-    
+
     _.each(verificationObject, function(verificate, index) {
         if (verificate) {
             verification += "verification." + index + ", "
@@ -189,6 +189,14 @@ var generateRouter = function() {
         js += generateRoute(model, "delete", "all")
         js += "\n\n"
     })
+
+    js += "app.all('*', function(req, res) {" +
+        "res.status(404).json({" +
+        "type: 'error'," +
+        "description: 'This endpoint does not exist.'" +
+        "})" +
+        "})\n\n"
+
     js += "}"
     js = beautify(js)
     fs.writeFile("./base/router.js", js, function(err) {
@@ -228,7 +236,13 @@ var generateController = function(model) {
 
         _.each(methods, function(method) {
             js += "exports." + method + " = function(req, res) {" +
-                "baseController." + method + "(req, " + model.name + ", function(status, result) { res.status(status.code).json(result)})" +
+                "baseController." + method + "(req, " + model.name + ", function(status, result) {" +
+                "if(status.type == 'success') {" +
+                "res.status(status.code).json(result)" +
+                "}else{" +
+                "res.status(status.code).json(status)" +
+                "}" +
+                "})" +
                 "}\n\n"
         })
 

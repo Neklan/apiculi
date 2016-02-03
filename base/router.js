@@ -27,4 +27,11 @@ module.exports = function(app, passport) {
     app.delete('/api/file/:id', fileController.deleteById);
     app.delete('/api/file', fileController.deleteAll);
 
+    app.all('*', function(req, res) {
+        res.status(404).json({
+            type: 'error',
+            description: 'This endpoint does not exist.'
+        })
+    })
+
 }
