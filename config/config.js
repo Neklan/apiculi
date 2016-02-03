@@ -1,4 +1,5 @@
-module.exports = {    
+module.exports = {
+    users: true,
     models: require("./models/index"),
     local: {
         port: 13000,

@@ -12,13 +12,13 @@ var generateModel = function(model, index) {
         var js = "var mongoose = require('mongoose')," +
             "Schema = mongoose.Schema," +
             "paginate = require('mongoose-paginate')," +
-            "config = require('../../config/config.js');\n\n"
+            "config = require('../../../config/config.js');\n\n"
 
         js += "var " + model.name + "Schema = new Schema(config.models[" + index + "].schema);\n\n"
         js += model.name + "Schema.plugin(paginate);" +
             "mongoose.model('" + model.name + "', " + model.name + "Schema);"
         js = beautify(js)
-        fs.writeFile("./base/models/" + model.name + ".js", js, function(err) {
+        fs.writeFile("./app/generated/models/" + model.name + ".js", js, function(err) {
             if (err) {
                 console.log(err)
             }
@@ -59,7 +59,7 @@ var deleteFolderRecursive = function(path) {
 };
 
 var generateFolders = function() {
-    var folders = ["app", "app/models", "app/controllers", "app/middleware", "base/models"]
+    var folders = ["app", "app/models", "app/generated", "app/generated/models", "app/controllers", "app/middleware"]
     _.each(folders, function(folder) {
         if (!fs.existsSync("./" + folder)) {
             fs.mkdirSync("./" + folder)
@@ -67,117 +67,49 @@ var generateFolders = function() {
     })
 }
 
-var generateRoute = function(model, request, type) {
-    if (type == undefined) {
-        type = "one"
-    }
+var generateRoutes = function(model) {
     var name = model.name.toLowerCase()
     var routeName = model.routeName || name
 
-    var authenticationType = "bearer"
-
-    // Authentication type
-    if (model.routes && model.routes[request] && model.routes[request][type] && model.routes[request][type].authentication !== undefined) {
-        authenticationType = model.routes[request][type].authentication
-    }
-
-    // Authentication of route
-    if (model.routes && model.routes[request] && model.routes[request].authentication !== undefined) {
-        authenticationType = model.routes[request].authentication
-    }
-
     var authentication = ""
-    var userModel = _.findWhere(config.models, {
-        name: "User"
-    })
-    if (authenticationType !== false && userModel) {
-        switch (authenticationType) {
-            case "bearer":
-                authentication = "passport.authenticate('bearer', {session: false}), "
-                break
-            default:
-                authentication = "passport.authenticate('bearer', {session: false}), "
-                break
-        }
+    if (config.users) {
+        authentication = "passport.authenticate('bearer', {session: false}), "
     }
-
-
-
-    /*var verificationObject = {
-        isAdmin: true
-    }
-
-    // Verification types
-    if (model.routes && model.routes[request] && model.routes[request][type] && model.routes[request][type].verification) {
-        _.each(model.routes[request][type].verification, function(verification, index) {
-            verificationObject[index] = verification
-        })
-    }
-
-    // Verification route
-    if (model.routes && model.routes[request] && model.routes[request].verification) {
-        _.each(model.routes[request].verification, function(verification, index) {
-            verificationObject[index] = verification
-        })
-    }
-
-
-    _.each(verificationObject, function(verificate, index) {
-        if (verificate) {
-            verification += "verification." + index + ", "
-        }
-    })*/
-    var verification = ""
     var js = ""
-    if (model.name == "User") {
-        switch (request) {
-            case "post":
-                js += "app.post('/api/" + routeName + "', " + name + "Controller.register);"
-                break
-            case "get":
-                js += "app.get('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.getMe);"
-                js += "app.get('/api/" + routeName + "/access_token', passport.authenticate('local', {session: false}), " + name + "Controller.accessToken);"
-                js += "app.get('/api/" + routeName + "', " + authentication + verification + name + "Controller.getAll);"
-                js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
-                js += "app.get('/api/" + routeName + "/activate/:hash', " + authentication + verification + name + "Controller.activate);"
-                break
-            case "put":
-                js += "app.put('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.updateMe);"
-                break
-            case "delete":
-                js += "app.delete('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.deleteById);"
-                js += "app.delete('/api/" + routeName + "', " + authentication + verification + name + "Controller.deleteAll);"
-                break
-        }
-    } else {
-        switch (request) {
-            case "post":
-                js += "app.post('/api/" + routeName + "', " + authentication + verification + name + "Controller.create);"
-                break
-            case "get":
-                js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
-                js += "app.get('/api/" + routeName + "', " + authentication + verification + name + "Controller.getAll);"
-                break
-            case "put":
-                js += "app.put('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.update);"
-                if (model.positionable) {
-                    js += "app.put('/api/" + routeName + "/:id/change-position/:position', " + authentication + verification + name + "Controller.changePosition);"
-                }
-                break
-            case "delete":
-                js += "app.delete('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.deleteById);"
-                js += "app.delete('/api/" + routeName + "', " + authentication + verification + name + "Controller.deleteAll);"
-                break
-        }
-    }
 
+    js += "var " + name + "Controller = require('../controllers/" + name + "');"
+    js += "app.post('/api/" + routeName + "', " + authentication + name + "Controller.create);"
+    js += "app.get('/api/" + routeName + "/:id', " + authentication + name + "Controller.getById);"
+    js += "app.get('/api/" + routeName + "', " + authentication + name + "Controller.getAll);"
+    js += "app.put('/api/" + routeName + "/:id', " + authentication + name + "Controller.update);"
+    if (model.positionable) {
+        js += "app.put('/api/" + routeName + "/:id/change-position/:position', " + authentication + name + "Controller.changePosition);"
+    }
+    js += "app.delete('/api/" + routeName + "/:id', " + authentication + name + "Controller.deleteById);"
+    js += "app.delete('/api/" + routeName + "', " + authentication + name + "Controller.deleteAll);\n\n"
+
+    return js
+}
+
+var generateUserRoutes = function() {
+    var js = ""
+    js += "var userController = require('../controllers/user');"
+    js += "app.post('/api/users', userController.register);"
+    js += "app.get('/api/users/me', passport.authenticate('bearer', {session: false}), userController.getMe);"
+    js += "app.get('/api/users/access_token', passport.authenticate('local', {session: false}), userController.accessToken);"
+    js += "app.get('/api/users', passport.authenticate('bearer', {session: false}), userController.getAll);"
+    js += "app.get('/api/users/:id', passport.authenticate('bearer', {session: false}), userController.getById);"
+    js += "app.get('/api/users/activate/:hash', passport.authenticate('bearer', {session: false}), userController.activate);"
+    js += "app.put('/api/users/me', passport.authenticate('bearer', {session: false}), userController.updateMe);"
+    js += "app.delete('/api/users/:id', passport.authenticate('bearer', {session: false}), userController.deleteById);"
+    js += "app.delete('/api/users', passport.authenticate('bearer', {session: false}), userController.deleteAll);\n\n"
 
     return js
 }
 
 var generateRouter = function() {
-    var js = "var verification = require('./middleware/verification');\n\nmodule.exports = function(app, passport) {"
-    js += "require('../app/router')(app, passport);\n\n"
+    var js = "var verification = require('../../base/middleware/verification');\n\nmodule.exports = function(app, passport) {"
+    js += "require('../router')(app, passport);\n\n"
     js += "app.get('/api', function(req, res) {" +
         "res.status(200).json({" +
         "name: '" + jsonPackage.name + "'," +
@@ -186,13 +118,17 @@ var generateRouter = function() {
         "})\n\n"
     var requests = ["post", "get", "put", "delete"]
     _.each(config.models, function(model) {
-        var name = model.name.toLowerCase()
-        js += "var " + name + "Controller = require('../app/controllers/" + name + "');"
-        _.each(requests, function(request) {
-            js += generateRoute(model, request)
-        })
-        js += "\n\n"
+        if (model.name != "User") {
+            var name = model.name.toLowerCase()            
+            js += generateRoutes(model)
+        }
+
     })
+
+    if (config.users) {
+        js += generateUserRoutes()
+    }
+
 
     js += "app.all('*', function(req, res) {" +
         "res.status(404).json({" +
@@ -203,7 +139,7 @@ var generateRouter = function() {
 
     js += "}"
     js = beautify(js)
-    fs.writeFile("./base/router.js", js, function(err) {
+    fs.writeFile("./app/generated/router.js", js, function(err) {
         if (err) {
             console.log(err)
         }
@@ -227,35 +163,23 @@ var generateRouter = function() {
 
 var generateController = function(model) {
     var path = "./app/controllers/" + model.name.toLowerCase() + ".js"
-    if (!fs.existsSync(path) || rewrite) {
+    if ((!fs.existsSync(path) || rewrite) && model.name != "User") {
         var js = ""
         js += "var mongoose = require('mongoose')," +
             model.name + " = mongoose.model('" + model.name + "'),"
 
         var methods = []
-        if (model.name == "User") {
-            js += "baseController = require('../../base/userController.js');\n\n"
-            methods = ["register", "activate", "getById", "getAll", "getMe", "updateMe", "deleteById", "deleteAll", "accessToken"]
-        } else {
-            js += "baseController = require('../../base/controller.js');\n\n"
-            methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]
-            if (model.positionable) {
-                methods.push("changePosition")
-            }
+
+        js += "baseController = require('../../base/controller.js');\n\n"
+        methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]
+        if (model.positionable) {
+            methods.push("changePosition")
         }
 
 
 
         _.each(methods, function(method) {
-            js += "exports." + method + " = function(req, res) {" +
-                "baseController." + method + "(req, " + model.name + ", function(status, result) {" +
-                "if(status.type == 'success') {" +
-                "res.status(status.code).json(result)" +
-                "}else{" +
-                "res.status(status.code).json(status)" +
-                "}" +
-                "})" +
-                "}\n\n"
+            js += generateBaseMethod(method, model.name)
         })
 
         js = beautify(js)
@@ -267,6 +191,43 @@ var generateController = function(model) {
         })
     }
 
+}
+
+var generateBaseMethod = function(method, modelName) {
+    return "exports." + method + " = function(req, res) {" +
+        "baseController." + method + "(req, " + modelName + ", function(status, result) {" +
+        "if(status.type == 'success') {" +
+        "res.status(status.code).json(result)" +
+        "}else{" +
+        "res.status(status.code).json(status)" +
+        "}" +
+        "})" +
+        "}\n\n"
+}
+
+var generateUserController = function() {
+    var path = "./app/controllers/user.js"
+    if ((!fs.existsSync(path) || rewrite)) {
+        var js = ""
+        js += "var mongoose = require('mongoose')," +
+            "User = mongoose.model('User'),"
+
+        var methods = []
+        js += "baseController = require('../../base/userController.js');\n\n"
+        methods = ["register", "activate", "getById", "getAll", "getMe", "updateMe", "deleteById", "deleteAll", "accessToken"]
+
+        _.each(methods, function(method) {
+            js += generateBaseMethod(method, "User")
+        })
+
+        js = beautify(js)
+        fs.writeFile(path, js, function(err) {
+            if (err) {
+                console.log(err)
+            }
+            console.log("Controller User was created.")
+        })
+    }
 }
 
 var generateVerification = function() {
@@ -296,6 +257,11 @@ var generate = function() {
 
     // Controllers
     _.each(config.models, generateController)
+
+    if (config.users) {
+        generateUserController()
+    }
+
 
     // Router
     generateRouter()

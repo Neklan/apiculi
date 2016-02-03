@@ -2,7 +2,6 @@ var uuid = require("node-uuid")
 
 module.exports = {
     name: "User",
-    routeName: "users",
     schema: {
         _id: {
             type: String,

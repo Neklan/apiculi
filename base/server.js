@@ -6,24 +6,18 @@ var express = require("express"),
     fs = require("fs"),
     _ = require("underscore")
 
-var userModel = _.findWhere(config.models, {
-    name: "User"
-})
 
-var models = fs.readdirSync("./base/models");
+require("./User.js")
+
+var models = fs.readdirSync("./app/generated/models");
 models.forEach(function(model) {
-    require("./models/" + model);
+    require("../app/generated/models/" + model);
 });
-
-if(userModel) {
-    require("./User.js")
-}
-
 
 
 var passport, expressSession, RedisStore, redis, sessionStore = null
 
-if (userModel) {
+if (config.users) {
     passport = require("passport"),
     expressSession = require("express-session"),
     RedisStore = require('connect-redis')(expressSession),
@@ -46,7 +40,7 @@ var app = express();
 require('./express')(app, sessionStore, passport, config)
 
 // router settings
-require('./router')(app, passport)
+require('../app/generated/router')(app, passport)
 
 
 app.listen(app.get("port"), function() {

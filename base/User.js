@@ -27,12 +27,15 @@ var requiredSchema = {
     salt: String
 }
 
-_.each(requiredSchema, function(value, key) {
-    configModel.schema[key] = value
-})
+if (configModel) {
+    _.each(requiredSchema, function(value, key) {
+        configModel.schema[key] = value
+    })
+}
 
 
-var UserSchema = new Schema(configModel.schema);
+
+var UserSchema = new Schema(configModel ? configModel.schema : requiredSchema);
 
 /**
  * Methods
