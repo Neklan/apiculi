@@ -1,5 +1,5 @@
 module.exports = {    
-    models: require("./models"),
+    models: require("./models/index"),
     local: {
         port: 13000,
         importExportSecret: "secret",

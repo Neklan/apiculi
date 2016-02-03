@@ -34,22 +34,22 @@ module.exports = function(app, passport) {
     }), actionController.deleteAll);
 
     var fileController = require('../app/controllers/file');
-    app.post('/api/file', passport.authenticate('bearer', {
+    app.post('/api/files', passport.authenticate('bearer', {
         session: false
     }), fileController.create);
-    app.get('/api/file/:id', passport.authenticate('bearer', {
+    app.get('/api/files/:id', passport.authenticate('bearer', {
         session: false
     }), fileController.getById);
-    app.get('/api/file', passport.authenticate('bearer', {
+    app.get('/api/files', passport.authenticate('bearer', {
         session: false
     }), fileController.getAll);
-    app.put('/api/file/:id', passport.authenticate('bearer', {
+    app.put('/api/files/:id', passport.authenticate('bearer', {
         session: false
     }), fileController.update);
-    app.delete('/api/file/:id', passport.authenticate('bearer', {
+    app.delete('/api/files/:id', passport.authenticate('bearer', {
         session: false
     }), fileController.deleteById);
-    app.delete('/api/file', passport.authenticate('bearer', {
+    app.delete('/api/files', passport.authenticate('bearer', {
         session: false
     }), fileController.deleteAll);
 
