@@ -57,4 +57,21 @@ module.exports = [{
         createdAt: Number,
         updatedAt: Number
     }
+}, {
+    name: "User",
+    routeName: "users",
+    schema: {
+        _id: {
+            type: String,
+            default: uuid.v4
+        },
+        name: String,
+        surname: String,
+        address: String,
+        photo: String,
+        totalPoints: Number,
+        isAdmin: Boolean,
+        createdAt: Number,
+        updatedAt: Number
+    }
 }]

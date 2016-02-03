@@ -6,15 +6,22 @@ var express = require("express"),
     fs = require("fs"),
     _ = require("underscore")
 
-var isUser = function(value) {
-    console.log(value)
-}
-
 var userModel = _.findWhere(config.models, {
     name: "User"
 })
 
-var passport, expressSession, RedisStore, redis, sessionStore
+var models = fs.readdirSync("./base/models");
+models.forEach(function(model) {
+    require("./models/" + model);
+});
+
+if(userModel) {
+    require("./User.js")
+}
+
+
+
+var passport, expressSession, RedisStore, redis, sessionStore = null
 
 if (userModel) {
     passport = require("passport"),
@@ -26,17 +33,14 @@ if (userModel) {
     })
 
     // passport settings
-    require('./passport')(passport)
+    require('./middleware/passport')(passport)
 }
 
 mongoose.connect(config[env].mongo.url)
 
 var app = express();
 
-var models = fs.readdirSync("./base/models");
-models.forEach(function(model) {
-    require("./models/" + model);
-});
+
 
 // express settings
 require('./express')(app, sessionStore, passport, config)

@@ -1,10 +1,13 @@
+var env = process.env.NODE_ENV || 'local',
+    config = require('../../config/config.js')[env]
+
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     LocalStrategy = require('passport-local').Strategy,
     BearerStrategy = require('passport-http-bearer').Strategy,
     Facilitator = require("token-facilitator"),
-    client = require("./redis").pub,
-    prefix = "ovm-f8b818ae84582282122c39d332564bbf2cbe6c02:",
+    client = require("../redis").pub,
+    prefix = config.prefix || "ovm-f8b818ae84582282122c39d332564bbf2cbe6c02:",
     crypto = require("crypto"),
     _ = require("underscore")
 

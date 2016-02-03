@@ -6,48 +6,37 @@ var fs = require("fs"),
 var config = require("./config/config.js"),
     jsonPackage = require("./package.json")
 
-var parseProperty = function(key, value) {
-    if (_.isFunction(value)) {
-        return key + ": " + value.name + ","
-    } else if (_.isObject(value) || _.isArray(value)) {
-        var text = key + ": {"
-        _.each(value, function(property, index) {
-            text += parseProperty(index, property)
-        })
-        text += "},"
-        return text
-    } else if (_.isString(value)) {
-        return key + ": '" + value + "',"
-    } else if (_.isBoolean(value)) {
-        return key + ": " + value + ", "
-    }
-    return ""
-}
 
 var generateModel = function(model, index) {
-    var js = "var mongoose = require('mongoose')," +
-        "Schema = mongoose.Schema," +
-        "paginate = require('mongoose-paginate')," +
-        "config = require('../../config/config.js');\n\n"
-        /*var properties = "{"
-    properties += "_id: {" +
-        "type: String," +
-        "default: uuid.v4" +
-        "},"
-    _.each(model.properties, function(property, index) {
-        properties += parseProperty(index, property)
-    })
-    properties += "}"*/
-    js += "var " + model.name + "Schema = new Schema(config.models[" + index + "].schema);\n\n"
-    js += model.name + "Schema.plugin(paginate);" +
-        "mongoose.model('" + model.name + "', " + model.name + "Schema);"
-    js = beautify(js)
-    fs.writeFile("./base/models/" + model.name + ".js", js, function(err) {
-        if (err) {
-            console.log(err)
+    if (model.name != "User") {
+        var js = "var mongoose = require('mongoose')," +
+            "Schema = mongoose.Schema," +
+            "paginate = require('mongoose-paginate')," +
+            "config = require('../../config/config.js');\n\n"
+
+        js += "var " + model.name + "Schema = new Schema(config.models[" + index + "].schema);\n\n"
+        js += model.name + "Schema.plugin(paginate);" +
+            "mongoose.model('" + model.name + "', " + model.name + "Schema);"
+        js = beautify(js)
+        fs.writeFile("./base/models/" + model.name + ".js", js, function(err) {
+            if (err) {
+                console.log(err)
+            }
+            console.log("Model " + model.name + " was created.")
+        })
+        var path = "./app/models/" + model.name + ".js"
+        if (!fs.existsSync(path) || rewrite) {
+            js = "var mongoose = require('mongoose'), "
+            js += model.name + " = mongoose.model('" + model.name + "');\n\n"
+            js = beautify(js)
+            fs.writeFile(path, js, function(err) {
+                if (err) {
+                    console.log(err)
+                }
+                console.log("App model " + model.name + " was created.")
+            })
         }
-        console.log("Model " + model.name + " was created.")
-    })
+    }
 }
 
 var deleteFolderRecursive = function(path) {
@@ -70,7 +59,7 @@ var deleteFolderRecursive = function(path) {
 };
 
 var generateFolders = function() {
-    var folders = ["app", "app/models", "app/controllers", "app/middleware"]
+    var folders = ["app", "app/models", "app/controllers", "app/middleware", "base/models"]
     _.each(folders, function(folder) {
         if (!fs.existsSync("./" + folder)) {
             fs.mkdirSync("./" + folder)
@@ -140,31 +129,50 @@ var generateRoute = function(model, request, type) {
     })*/
     var verification = ""
     var js = ""
-    switch (request) {
-        case "post":
-            js += "app.post('/api/" + routeName + "', " + authentication + verification + name + "Controller.create);"
-            break
-        case "get":
-            if (type == "one") {
-                js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
-            } else if (type == "all") {
+    if (model.name == "User") {
+        switch (request) {
+            case "post":
+                js += "app.post('/api/" + routeName + "', " + name + "Controller.register);"
+                js += "app.post('/api/" + routeName + "/create', " + authentication + verification + name + "Controller.create);"
+                break
+            case "get":
+                js += "app.get('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.getMe);"
                 js += "app.get('/api/" + routeName + "', " + authentication + verification + name + "Controller.getAll);"
-            }
-            break
-        case "put":
-            js += "app.put('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.update);"
-            if (model.positionable) {
-                js += "app.put('/api/" + routeName + "/:id/change-position/:position', " + authentication + verification + name + "Controller.changePosition);"
-            }
-            break
-        case "delete":
-            if (type == "one") {
+                js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
+                js += "app.get('/api/" + routeName + "/activate/:hash', " + authentication + verification + name + "Controller.activate);"
+                js += "app.get('/api/" + routeName + "/access_token', " + authentication + verification + name + "Controller.accessToken);"
+                break
+            case "put":
+                js += "app.put('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.updateMe);"
+                js += "app.put('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.updateUser);"
+                break
+            case "delete":
                 js += "app.delete('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.deleteById);"
-            } else if (type == "all") {
                 js += "app.delete('/api/" + routeName + "', " + authentication + verification + name + "Controller.deleteAll);"
-            }
-            break
+                break
+        }
+    } else {
+        switch (request) {
+            case "post":
+                js += "app.post('/api/" + routeName + "', " + authentication + verification + name + "Controller.create);"
+                break
+            case "get":
+                js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
+                js += "app.get('/api/" + routeName + "', " + authentication + verification + name + "Controller.getAll);"
+                break
+            case "put":
+                js += "app.put('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.update);"
+                if (model.positionable) {
+                    js += "app.put('/api/" + routeName + "/:id/change-position/:position', " + authentication + verification + name + "Controller.changePosition);"
+                }
+                break
+            case "delete":
+                js += "app.delete('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.deleteById);"
+                js += "app.delete('/api/" + routeName + "', " + authentication + verification + name + "Controller.deleteAll);"
+                break
+        }
     }
+
 
     return js
 }
@@ -178,15 +186,13 @@ var generateRouter = function() {
         "version: '" + jsonPackage.version + "'" +
         "})" +
         "})\n\n"
+    var requests = ["post", "get", "put", "delete"]
     _.each(config.models, function(model) {
         var name = model.name.toLowerCase()
         js += "var " + name + "Controller = require('../app/controllers/" + name + "');"
-        js += generateRoute(model, "post")
-        js += generateRoute(model, "get")
-        js += generateRoute(model, "get", "all")
-        js += generateRoute(model, "put")
-        js += generateRoute(model, "delete")
-        js += generateRoute(model, "delete", "all")
+        _.each(requests, function(request) {
+            js += generateRoute(model, request)
+        })
         js += "\n\n"
     })
 
@@ -226,13 +232,21 @@ var generateController = function(model) {
     if (!fs.existsSync(path) || rewrite) {
         var js = ""
         js += "var mongoose = require('mongoose')," +
-            model.name + " = mongoose.model('" + model.name + "')," +
-            "baseController = require('../../base/controller.js');\n\n"
+            model.name + " = mongoose.model('" + model.name + "'),"
 
-        var methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]
-        if (model.positionable) {
-            methods.push("changePosition")
+        var methods = []
+        if (model.name == "User") {
+            js += "baseController = require('../../base/userController.js');\n\n"
+            methods = ["register", "create", "activate", "getById", "getAll", "getMe", "updateMe", "updateUser", "deleteById", "deleteAll", "accessToken"]
+        } else {
+            js += "baseController = require('../../base/controller.js');\n\n"
+            methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]
+            if (model.positionable) {
+                methods.push("changePosition")
+            }
         }
+
+
 
         _.each(methods, function(method) {
             js += "exports." + method + " = function(req, res) {" +
@@ -276,6 +290,7 @@ var generateVerification = function() {
 var generate = function() {
     // Folders
     deleteFolderRecursive("./app")
+    deleteFolderRecursive("./base/models")
     generateFolders()
 
     // Models
