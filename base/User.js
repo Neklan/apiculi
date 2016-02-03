@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
+    paginate = require('mongoose-paginate'),
     crypto = require("crypto"),
     config = require('../config/config.js'),
     _ = require("underscore"),
@@ -76,5 +77,6 @@ UserSchema.methods = {
     }
 }
 
+UserSchema.plugin(paginate);
 
 mongoose.model("User", UserSchema)

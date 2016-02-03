@@ -55,12 +55,12 @@ module.exports = function(app, passport) {
 
     var userController = require('../app/controllers/user');
     app.post('/api/users', userController.register);
-    app.post('/api/users/create', passport.authenticate('bearer', {
-        session: false
-    }), userController.create);
     app.get('/api/users/me', passport.authenticate('bearer', {
         session: false
     }), userController.getMe);
+    app.get('/api/users/access_token', passport.authenticate('local', {
+        session: false
+    }), userController.accessToken);
     app.get('/api/users', passport.authenticate('bearer', {
         session: false
     }), userController.getAll);
@@ -70,15 +70,9 @@ module.exports = function(app, passport) {
     app.get('/api/users/activate/:hash', passport.authenticate('bearer', {
         session: false
     }), userController.activate);
-    app.get('/api/users/access_token', passport.authenticate('bearer', {
-        session: false
-    }), userController.accessToken);
     app.put('/api/users/me', passport.authenticate('bearer', {
         session: false
     }), userController.updateMe);
-    app.put('/api/users/:id', passport.authenticate('bearer', {
-        session: false
-    }), userController.updateUser);
     app.delete('/api/users/:id', passport.authenticate('bearer', {
         session: false
     }), userController.deleteById);

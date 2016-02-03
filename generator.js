@@ -133,18 +133,16 @@ var generateRoute = function(model, request, type) {
         switch (request) {
             case "post":
                 js += "app.post('/api/" + routeName + "', " + name + "Controller.register);"
-                js += "app.post('/api/" + routeName + "/create', " + authentication + verification + name + "Controller.create);"
                 break
             case "get":
                 js += "app.get('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.getMe);"
+                js += "app.get('/api/" + routeName + "/access_token', passport.authenticate('local', {session: false}), " + name + "Controller.accessToken);"
                 js += "app.get('/api/" + routeName + "', " + authentication + verification + name + "Controller.getAll);"
                 js += "app.get('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.getById);"
                 js += "app.get('/api/" + routeName + "/activate/:hash', " + authentication + verification + name + "Controller.activate);"
-                js += "app.get('/api/" + routeName + "/access_token', " + authentication + verification + name + "Controller.accessToken);"
                 break
             case "put":
                 js += "app.put('/api/" + routeName + "/me', " + authentication + verification + name + "Controller.updateMe);"
-                js += "app.put('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.updateUser);"
                 break
             case "delete":
                 js += "app.delete('/api/" + routeName + "/:id', " + authentication + verification + name + "Controller.deleteById);"
@@ -237,7 +235,7 @@ var generateController = function(model) {
         var methods = []
         if (model.name == "User") {
             js += "baseController = require('../../base/userController.js');\n\n"
-            methods = ["register", "create", "activate", "getById", "getAll", "getMe", "updateMe", "updateUser", "deleteById", "deleteAll", "accessToken"]
+            methods = ["register", "activate", "getById", "getAll", "getMe", "updateMe", "deleteById", "deleteAll", "accessToken"]
         } else {
             js += "baseController = require('../../base/controller.js');\n\n"
             methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]

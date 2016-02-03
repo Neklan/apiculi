@@ -2,8 +2,10 @@ var env = process.env.NODE_ENV || 'local',
     multer = require("multer"),
     storage = multer.memoryStorage(),
     bodyParser = require("body-parser"),
+    flash = require('connect-flash'),
     cookieParser = require("cookie-parser"),
-    logger = require("morgan")
+    logger = require("morgan"),
+    session = require("express-session")
 
 var allowCrossDomain = function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -26,8 +28,35 @@ module.exports = function(app, sessionStore, passport, config) {
     app.use(bodyParser.urlencoded({
         extended: true
     }))
-    app.use(bodyParser.json({limit: '50mb'}))
+    app.use(bodyParser.json({
+        limit: '50mb'
+    }))
     app.use(cookieParser())
-    app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
-    app.use(multer({storage: storage}).single("file"))
+    app.use(bodyParser.urlencoded({
+        limit: '50mb',
+        extended: true
+    }))
+    app.use(multer({
+        storage: storage
+    }).single("file"))
+
+    if (sessionStore) {
+        app.use(session({
+            store: sessionStore,
+            secret: 'secret',
+            key: 'express.sid',
+            saveUninitialized: true,
+            resave: true
+        }))
+
+        // flash messages init
+        app.use(flash());
+    }
+
+    if (passport) {
+        app.use(passport.initialize())
+        app.use(passport.session())
+    }
+
+
 }

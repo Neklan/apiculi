@@ -70,7 +70,6 @@ module.exports = [{
         address: String,
         photo: String,
         totalPoints: Number,
-        isAdmin: Boolean,
         createdAt: Number,
         updatedAt: Number
     }

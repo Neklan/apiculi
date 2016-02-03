@@ -7,10 +7,9 @@ var mongoose = require('mongoose'),
     BearerStrategy = require('passport-http-bearer').Strategy,
     Facilitator = require("token-facilitator"),
     client = require("../redis").pub,
-    prefix = config.prefix || "ovm-f8b818ae84582282122c39d332564bbf2cbe6c02:",
+    prefix = config.prefix || "secret-prefix:",
     crypto = require("crypto"),
     _ = require("underscore")
-
 
 function generateToken(data, next) {
     var facilitator = new Facilitator({
@@ -32,7 +31,6 @@ function getKeyFromToken(token) {
 }
 
 module.exports = function(passport) {
-
 
     // Local strategy
     passport.use(new LocalStrategy({
