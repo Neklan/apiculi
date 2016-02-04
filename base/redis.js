@@ -7,10 +7,10 @@ if (!config.redis) {
     var redis = require("redis").createClient
 
     var clients = {
-        pub: redis(config.redis.url, {
+        pub: redis(config.redis, {
             auth_pass: config.redis.pass
         }),
-        sub: redis(config.redis.url, {
+        sub: redis(config.redis, {
             detect_buffers: true,
             auth_pass: config.redis.pass
         })

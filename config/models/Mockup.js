@@ -1,19 +1,18 @@
 var uuid = require("node-uuid")
 
 module.exports = {
-    name: "File",
-    routeName: "files",
+    name: "Mockup",
+    routeName: "mockups",
+    positionable: true,
     schema: {
         _id: {
             type: String,
             default: uuid.v4
         },
-        name: String,
-        _user: {
+        title: {
             type: String,
-            ref: "User"
+            required: true
         },
-        cloudinary: {},
         createdAt: Number,
         updatedAt: Number
     }

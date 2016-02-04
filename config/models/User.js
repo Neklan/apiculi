@@ -7,11 +7,8 @@ module.exports = {
             type: String,
             default: uuid.v4
         },
-        name: String,
-        surname: String,
-        address: String,
-        photo: String,
-        totalPoints: Number,
+        firstName: String,
+        lastName: String,
         createdAt: Number,
         updatedAt: Number
     }

@@ -1,11 +1,17 @@
+#!/usr/bin/env node
+
 var fs = require("fs"),
     _ = require("underscore"),
     beautify = require("js-beautify").js_beautify,
-    rewrite = process.env.NODE_FORCE
+    program = require("commander"),
+    path = require("path")
 
-var config = require("./config/config.js"),
-    jsonPackage = require("./package.json")
+var destinationPath, config, pkg
 
+
+program
+    .option('-f, --force', 'force rewrite api controllers')
+    .parse(process.argv);
 
 var generateModel = function(model, index) {
     if (model.name != "User") {
@@ -18,54 +24,18 @@ var generateModel = function(model, index) {
         js += model.name + "Schema.plugin(paginate);" +
             "mongoose.model('" + model.name + "', " + model.name + "Schema);"
         js = beautify(js)
-        fs.writeFile("./app/generated/models/" + model.name + ".js", js, function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log("Model " + model.name + " was created.")
-        })
-        var path = "./app/models/" + model.name + ".js"
-        if (!fs.existsSync(path) || rewrite) {
-            js = "var mongoose = require('mongoose'), "
-            js += model.name + " = mongoose.model('" + model.name + "');\n\n"
-            js = beautify(js)
-            fs.writeFile(path, js, function(err) {
-                if (err) {
-                    console.log(err)
-                }
-                console.log("App model " + model.name + " was created.")
-            })
-        }
+
+        write(destinationPath + "/app/generated/models/" + model.name + ".js", js)
+    }
+    var path = destinationPath + "/app/models/" + model.name + ".js"
+    if (!fs.existsSync(path) || program.force) {
+        js = "var mongoose = require('mongoose'), "
+        js += model.name + " = mongoose.model('" + model.name + "');\n\n"
+        js = beautify(js)
+        write(path, js)
     }
 }
 
-var deleteFolderRecursive = function(path) {
-    if (rewrite) {
-        var files = [];
-        if (fs.existsSync(path)) {
-            files = fs.readdirSync(path);
-            files.forEach(function(file, index) {
-                var curPath = path + "/" + file;
-                if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                    deleteFolderRecursive(curPath);
-                } else { // delete file
-                    fs.unlinkSync(curPath);
-                }
-            });
-            fs.rmdirSync(path);
-        }
-    }
-
-};
-
-var generateFolders = function() {
-    var folders = ["app", "app/models", "app/generated", "app/generated/models", "app/controllers", "app/middleware"]
-    _.each(folders, function(folder) {
-        if (!fs.existsSync("./" + folder)) {
-            fs.mkdirSync("./" + folder)
-        }
-    })
-}
 
 var generateRoutes = function(model) {
     var name = model.name.toLowerCase()
@@ -112,14 +82,14 @@ var generateRouter = function() {
     js += "require('../router')(app, passport);\n\n"
     js += "app.get('/api', function(req, res) {" +
         "res.status(200).json({" +
-        "name: '" + jsonPackage.name + "'," +
-        "version: '" + jsonPackage.version + "'" +
+        "name: '" + pkg.name + "'," +
+        "version: '" + pkg.version + "'" +
         "})" +
         "})\n\n"
     var requests = ["post", "get", "put", "delete"]
     _.each(config.models, function(model) {
         if (model.name != "User") {
-            var name = model.name.toLowerCase()            
+            var name = model.name.toLowerCase()
             js += generateRoutes(model)
         }
 
@@ -139,31 +109,21 @@ var generateRouter = function() {
 
     js += "}"
     js = beautify(js)
-    fs.writeFile("./app/generated/router.js", js, function(err) {
-        if (err) {
-            console.log(err)
-        }
-        console.log("Router was created.")
-    })
+    write(destinationPath + "/app/generated/router.js", js)
 
-    var path = "./app/router.js"
-    if (!fs.existsSync(path) || rewrite) {
+    var path = destinationPath + "/app/router.js"
+    if (!fs.existsSync(path) || program.force) {
         js = "var verification = require('./middleware/verification');\n\nmodule.exports = function(app, passport) {"
 
         js += "}"
         js = beautify(js)
-        fs.writeFile(path, js, function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log("App router was created.")
-        })
+        write(path, js)
     }
 }
 
 var generateController = function(model) {
-    var path = "./app/controllers/" + model.name.toLowerCase() + ".js"
-    if ((!fs.existsSync(path) || rewrite) && model.name != "User") {
+    var path = destinationPath + "/app/controllers/" + model.name.toLowerCase() + ".js"
+    if ((!fs.existsSync(path) || program.force) && model.name != "User") {
         var js = ""
         js += "var mongoose = require('mongoose')," +
             model.name + " = mongoose.model('" + model.name + "'),"
@@ -183,12 +143,7 @@ var generateController = function(model) {
         })
 
         js = beautify(js)
-        fs.writeFile(path, js, function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log("Controller " + model.name + " was created.")
-        })
+        write(path, js)
     }
 
 }
@@ -206,8 +161,8 @@ var generateBaseMethod = function(method, modelName) {
 }
 
 var generateUserController = function() {
-    var path = "./app/controllers/user.js"
-    if ((!fs.existsSync(path) || rewrite)) {
+    var path = destinationPath + "/app/controllers/user.js"
+    if ((!fs.existsSync(path) || program.force)) {
         var js = ""
         js += "var mongoose = require('mongoose')," +
             "User = mongoose.model('User'),"
@@ -221,36 +176,47 @@ var generateUserController = function() {
         })
 
         js = beautify(js)
-        fs.writeFile(path, js, function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log("Controller User was created.")
-        })
+        write(path, js)
     }
 }
 
 var generateVerification = function() {
-    var path = "./app/middleware/verification.js"
-    if (!fs.existsSync(path) || rewrite) {
+    var path = destinationPath + "/app/middleware/verification.js"
+    if (!fs.existsSync(path) || program.force) {
         var js = "exports.check = function(req, res, next) {"
         js += "next()}"
 
         js = beautify(js)
-        fs.writeFile(path, js, function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log("App verification was created.")
-        })
+        write(path, js)
     }
 }
 
-var generate = function() {
-    // Folders
-    deleteFolderRecursive("./app")
-    deleteFolderRecursive("./base/models")
-    generateFolders()
+
+/**
+ * echo str > path.
+ *
+ * @param {String} path
+ * @param {String} str
+ */
+
+function write(path, str, mode) {
+    fs.writeFileSync(path, str, {
+        mode: mode || 0666
+    });
+    console.log('   \x1b[36mcreate\x1b[0m : ' + path);
+}
+
+
+/**
+ * Main program.
+ */
+
+var init = function() {
+    // Path
+    destinationPath = program.args[0] ? process.cwd() + "/" + program.args[0] : process.cwd();
+
+    config = require(destinationPath + "/config/config.js"),
+    pkg = require(destinationPath + "/package.json")
 
     // Models
     _.each(config.models, generateModel)
@@ -258,10 +224,10 @@ var generate = function() {
     // Controllers
     _.each(config.models, generateController)
 
+    // Does have api users?
     if (config.users) {
         generateUserController()
     }
-
 
     // Router
     generateRouter()
@@ -270,6 +236,4 @@ var generate = function() {
     generateVerification()
 }
 
-generate()
-
-exports.generate = generate
+init()
