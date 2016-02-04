@@ -13,6 +13,13 @@ program
     .option('-f, --force', 'force rewrite api controllers')
     .parse(process.argv);
 
+
+/**
+ * Generate model
+ *
+ * @param {Object} model
+ * @param {Number} index
+ */
 var generateModel = function(model, index) {
     if (model.name != "User") {
         var js = "var mongoose = require('mongoose')," +
@@ -37,6 +44,11 @@ var generateModel = function(model, index) {
 }
 
 
+/**
+ * Generate routes for model
+ *
+ * @param {Object} model
+ */
 var generateRoutes = function(model) {
     var name = model.name.toLowerCase()
     var routeName = model.routeName || name
@@ -47,7 +59,7 @@ var generateRoutes = function(model) {
     }
     var js = ""
 
-    js += "var " + name + "Controller = require('../controllers/" + name + "');"
+    js += "var " + name + "Controller = require('../api/controllers/" + name + "');"
     js += "app.post('/api/" + routeName + "', " + authentication + name + "Controller.create);"
     js += "app.get('/api/" + routeName + "/:id', " + authentication + name + "Controller.getById);"
     js += "app.get('/api/" + routeName + "', " + authentication + name + "Controller.getAll);"
@@ -61,9 +73,12 @@ var generateRoutes = function(model) {
     return js
 }
 
+/**
+ * Generate user routes
+ */
 var generateUserRoutes = function() {
     var js = ""
-    js += "var userController = require('../controllers/user');"
+    js += "var userController = require('../api/controllers/user');"
     js += "app.post('/api/users', userController.register);"
     js += "app.get('/api/users/me', passport.authenticate('bearer', {session: false}), userController.getMe);"
     js += "app.get('/api/users/access_token', passport.authenticate('local', {session: false}), userController.accessToken);"
@@ -77,6 +92,10 @@ var generateUserRoutes = function() {
     return js
 }
 
+
+/**
+ * Generate router
+ */
 var generateRouter = function() {
     var js = "var verification = require('../../base/middleware/verification');\n\nmodule.exports = function(app, passport) {"
     js += "require('../router')(app, passport);\n\n"
@@ -86,6 +105,12 @@ var generateRouter = function() {
         "version: '" + pkg.version + "'" +
         "})" +
         "})\n\n"
+
+    js += "// Frontend part\n\n"
+    js += "var indexController = require('../frontend/controllers/index');"
+    js += "app.get('/', indexController.index);\n\n"
+
+    js += "// API part\n\n"
     var requests = ["post", "get", "put", "delete"]
     _.each(config.models, function(model) {
         if (model.name != "User") {
@@ -121,8 +146,14 @@ var generateRouter = function() {
     }
 }
 
+
+/**
+ * Generate controller for model
+ *
+ * @param {Object} model
+ */
 var generateController = function(model) {
-    var path = destinationPath + "/app/controllers/" + model.name.toLowerCase() + ".js"
+    var path = destinationPath + "/app/api/controllers/" + model.name.toLowerCase() + ".js"
     if ((!fs.existsSync(path) || program.force) && model.name != "User") {
         var js = ""
         js += "var mongoose = require('mongoose')," +
@@ -130,7 +161,7 @@ var generateController = function(model) {
 
         var methods = []
 
-        js += "baseController = require('../../base/controller.js');\n\n"
+        js += "baseController = require('../../../base/controller.js');\n\n"
         methods = ["create", "getById", "getAll", "update", "deleteById", "deleteAll"]
         if (model.positionable) {
             methods.push("changePosition")
@@ -148,6 +179,12 @@ var generateController = function(model) {
 
 }
 
+/**
+ * Generate base controller method for model
+ *
+ * @param {String} method
+ * @param {String} modelName
+ */
 var generateBaseMethod = function(method, modelName) {
     return "exports." + method + " = function(req, res) {" +
         "baseController." + method + "(req, " + modelName + ", function(status, result) {" +
@@ -160,15 +197,18 @@ var generateBaseMethod = function(method, modelName) {
         "}\n\n"
 }
 
+/**
+ * Generate user controller
+ */
 var generateUserController = function() {
-    var path = destinationPath + "/app/controllers/user.js"
+    var path = destinationPath + "/app/api/controllers/user.js"
     if ((!fs.existsSync(path) || program.force)) {
         var js = ""
         js += "var mongoose = require('mongoose')," +
             "User = mongoose.model('User'),"
 
         var methods = []
-        js += "baseController = require('../../base/userController.js');\n\n"
+        js += "baseController = require('../../../base/userController.js');\n\n"
         methods = ["register", "activate", "getById", "getAll", "getMe", "updateMe", "deleteById", "deleteAll", "accessToken"]
 
         _.each(methods, function(method) {
@@ -180,6 +220,9 @@ var generateUserController = function() {
     }
 }
 
+/**
+ * Generate verification middleware
+ */
 var generateVerification = function() {
     var path = destinationPath + "/app/middleware/verification.js"
     if (!fs.existsSync(path) || program.force) {

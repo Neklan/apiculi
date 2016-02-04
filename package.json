@@ -1,23 +1,8 @@
 {
-    "name": "api-generator",
-    "version": "0.0.1",
     "bin": {
         "api-generator": "bin/api-generator.js",
         "api-refresher": "bin/api-refresher.js"
     },
-    "main": "bin/api-generator.js",
-    "preferGlobal": true,
-    "keywords": [
-        "api",
-        "framework",
-        "rest",
-        "restful",
-        "crud",
-        "express",
-        "web",
-        "app"
-    ],
-    "license": "MIT",
     "dependencies": {
         "body-parser": "~1.13.2",
         "commander": "^2.9.0",
@@ -46,5 +31,22 @@
         "token-facilitator": "latest",
         "underscore": "latest",
         "urlify": "^0.3.6"
-    }
+    },
+    "devDependencies": {},
+    "gitHead": "47dcb6d68180ca2b897b59c7617cc39f1d8ebaf9",
+    "keywords": [
+        "api",
+        "app",
+        "crud",
+        "express",
+        "framework",
+        "rest",
+        "restful",
+        "web"
+    ],
+    "license": "MIT",
+    "main": "bin/api-generator.js",
+    "name": "api-generator",
+    "preferGlobal": true,
+    "version": "0.0.1"
 }

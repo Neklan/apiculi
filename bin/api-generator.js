@@ -7,7 +7,7 @@ var fs = require("fs"),
     mkdirp = require("mkdirp"),
     readline = require('readline'),
     path = require("path")
-    
+
 
 var config = require("../config/config.js"),
     pkg = require("../package.json")
@@ -15,9 +15,11 @@ var config = require("../config/config.js"),
 
 program
     .version(pkg.version)
-    .usage('[dir]')
+    .usage('[options] [dir]')
     .option('    --git', 'add .gitignore')
     .option('-f, --force', 'force on non-empty directory')
+    .option('-m, --mongo <url>', 'set mongo connection url')
+    .option('-r, --redis <url>', 'set redis connection url')
     .parse(process.argv);
 
 /**
@@ -39,8 +41,11 @@ var createApplication = function(app_name, path) {
         console.log('   install dependencies:');
         console.log('     %s cd %s && npm install', prompt, path);
         console.log();
-        console.log('   replace mongo and redis connection urls in config file');
-        console.log();
+        if (!program.mongo) {
+            console.log('   replace mongo and redis connection urls in config file');
+            console.log();
+        }
+
         console.log('   run the app:');
 
         if (launchedFromCmd()) {
@@ -51,13 +56,15 @@ var createApplication = function(app_name, path) {
 
         console.log();
 
-        
+
     }
 
+    // Middleware
     var pagination = loadTemplate("base/middleware/pagination.js")
     var passport = loadTemplate("base/middleware/passport.js")
     var verification = loadTemplate("base/middleware/verification.js")
 
+    // Base settings
     var controller = loadTemplate("base/controller.js")
     var express = loadTemplate("base/express.js")
     var redis = loadTemplate("base/redis.js")
@@ -65,13 +72,35 @@ var createApplication = function(app_name, path) {
     var User = loadTemplate("base/User.js")
     var userController = loadTemplate("base/userController.js")
 
+    // Config files
     var config = loadTemplate("config/config.js")
     var modelsIndex = loadTemplate("config/models/index.js")
     var modelUser = loadTemplate("config/models/User.js")
     var modelMockup = loadTemplate("config/models/Mockup.js")
 
+    // Frontend part
+    var frontendController = loadTemplate("base/frontend/controller.js")
+    var layout = loadTemplate("base/frontend/layout.jade")
+    var view = loadTemplate("base/frontend/view.jade")
+
     mkdir(path, function() {
         mkdir(path + "/app")
+        mkdir(path + "/app/api")
+        mkdir(path + "/app/api/controllers")
+
+        mkdir(path + "/app/frontend")
+        mkdir(path + "/app/frontend/controllers", function() {
+            write(path + "/app/frontend/controllers/index.js", frontendController)
+        })
+
+        mkdir(path + "/app/frontend/views/index", function() {
+            write(path + "/app/frontend/views/index/index.jade", view)
+        })
+
+        mkdir(path + "/app/frontend/views/layouts", function() {
+            layout = layout.replace("{NAME}", app_name)
+            write(path + "/app/frontend/views/layouts/default.jade", layout)
+        })
         mkdir(path + "/app/models")
         mkdir(path + "/app/generated")
         mkdir(path + "/app/generated/models")
@@ -94,6 +123,16 @@ var createApplication = function(app_name, path) {
         })
 
         mkdir(path + "/config", function() {
+
+            // Replace mongo url
+            if (program.mongo) {
+                config = config.replace("MONGO_CONNECTION_URL", program.mongo)
+            }
+
+            // Replace redis url
+            if (program.redis) {
+                config = config.replace("REDIS_CONNECTION_URL", program.redis)
+            }
             write(path + "/config/config.js", config)
             mkdir(path + "/config/models", function() {
                 write(path + "/config/models/index.js", modelsIndex)

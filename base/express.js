@@ -26,6 +26,12 @@ module.exports = function(app, sessionStore, passport, config) {
     app.set('port', process.env.PORT || config[env].port);
     app.use(logger(":method :url :response-time ms - :res[content-length] b"))
 
+    app.set('views', require('path').normalize(__dirname) + '/../app/frontend/views')
+    app.set('view engine', 'jade');
+    app.set('view options', {
+        layout: 'layouts/default'
+    })
+
     app.use(allowCrossDomain);
     app.use(bodyParser.urlencoded({
         extended: true
