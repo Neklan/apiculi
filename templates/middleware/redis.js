@@ -1,5 +1,5 @@
 var env = process.env.NODE_ENV || 'local',
-    config = require('../config/config')[env]
+    config = require('../../config/config')[env]
 
 if (!config.redis) {
     throw new Error("You need to define redis url, if you want to use bearer authentication.")

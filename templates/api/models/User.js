@@ -2,7 +2,7 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     paginate = require('mongoose-paginate'),
     crypto = require("crypto"),
-    config = require('../config/config.js'),
+    config = require('../../../config/config.js'),
     _ = require("underscore"),
     configModel = _.findWhere(config.models, {
         name: "User"

@@ -1,4 +1,4 @@
-var pagination = require("./middleware/pagination"),
+var pagination = require("../../middleware/pagination"),
     _ = require("underscore")
 
 var parseErrors = function(err) {
@@ -151,6 +151,44 @@ exports.getMe = function(req, User, next) {
 exports.updateMe = function(req, User, next) {
     User.findOne({
         _id: req.user._id
+    }, function(err, user) {
+        if (err) {
+            console.log(err)
+        }
+        if (user) {
+            delete req.body._id
+            delete req.body.isAdmin
+            delete req.body.isActivated
+            delete req.body.activationHash
+            delete req.body.hashedPassword
+            delete req.body.salt
+            delete req.body.createdAt
+
+            _.each(req.body, function(value, key) {
+                user.set(key, value)
+            })
+
+            user.set("__v", user.get("__v") + 1)
+            user.set("updatedAt", new Date().getTime())
+            user.save(function(err) {
+                next({
+                    code: 200,
+                    type: "success"
+                }, user)
+            })
+        } else {
+            next({
+                code: 404,
+                type: "error",
+                message: "User not found."
+            }, user)
+        }
+    })
+}
+
+exports.updateById = function(req, User, next) {
+    User.findOne({
+        _id: req.params.id
     }, function(err, user) {
         if (err) {
             console.log(err)

@@ -1,5 +1,5 @@
 var env = process.env.NODE_ENV || 'local',
-    config = require(process.cwd() + '/config/config.js')
+    config = require('./config/config.js')
 
 var express = require("express"),
     mongoose = require("mongoose"),
@@ -7,11 +7,9 @@ var express = require("express"),
     _ = require("underscore")
 
 
-require(process.cwd() + "/base/User.js")
-
-var models = fs.readdirSync(process.cwd() + "/app/generated/models");
+var models = fs.readdirSync("./app/api/models");
 models.forEach(function(model) {
-    require(process.cwd() + "/app/generated/models/" + model);
+    require("./app/api/models/" + model);
 });
 
 
@@ -21,13 +19,13 @@ if (config.users) {
     passport = require("passport"),
     expressSession = require("express-session"),
     RedisStore = require('connect-redis')(expressSession),
-    redis = require(process.cwd() + "/base/redis.js"),
+    redis = require("./app/middleware/redis.js"),
     sessionStore = new RedisStore({
         client: redis.pub
     })
 
     // passport settings
-    require(process.cwd() + '/base/middleware/passport')(passport)
+    require('./app/middleware/passport')(passport)
 }
 
 mongoose.connect(config[env].mongo)
@@ -37,10 +35,10 @@ var app = express();
 
 
 // express settings
-require(process.cwd() + '/base/express')(app, sessionStore, passport, config)
+require('./app/express')(app, sessionStore, passport, config)
 
 // router settings
-require(process.cwd() + '/app/generated/router')(app, passport)
+require('./app/router')(app)
 
 
 app.listen(app.get("port"), function() {

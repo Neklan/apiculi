@@ -1,6 +1,6 @@
-var pagination = require("./middleware/pagination"),
+var pagination = require("../../middleware/pagination"),
     _ = require("underscore"),
-    config = require("../config/config")
+    config = require("../../../config/config")
 
 var parseErrors = function(err) {
     var errors = []

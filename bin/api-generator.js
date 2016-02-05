@@ -29,12 +29,12 @@ program
  */
 
 var createApplication = function(app_name, path) {
-    var wait = 5
+    var wait = 10
 
     console.log()
     var complete = function() {
         if (--wait) return;
-        require("./api-refresher")
+
         var prompt = launchedFromCmd() ? '>' : '$';
 
         console.log();
@@ -59,18 +59,28 @@ var createApplication = function(app_name, path) {
 
     }
 
-    // Middleware
-    var pagination = loadTemplate("base/middleware/pagination.js")
-    var passport = loadTemplate("base/middleware/passport.js")
-    var verification = loadTemplate("base/middleware/verification.js")
+    // Main file
+    var server = loadTemplate("templates/server.js")
 
     // Base settings
-    var controller = loadTemplate("base/controller.js")
-    var express = loadTemplate("base/express.js")
-    var redis = loadTemplate("base/redis.js")
-    var server = loadTemplate("base/server.js")
-    var User = loadTemplate("base/User.js")
-    var userController = loadTemplate("base/userController.js")
+    var express = loadTemplate("templates/express.js")
+    var router = loadTemplate("templates/router.js")    
+
+    // Middleware
+    var pagination = loadTemplate("templates/middleware/pagination.js")
+    var passport = loadTemplate("templates/middleware/passport.js")
+    var verification = loadTemplate("templates/middleware/verification.js")
+    var redis = loadTemplate("templates/middleware/redis.js")
+
+    // Api controllers
+    var baseController = loadTemplate("templates/api/controllers/baseController.js")
+    var mockupController = loadTemplate("templates/api/controllers/mockupController.js")
+    var userController = loadTemplate("templates/api/controllers/userController.js")
+
+    // Models
+    var BaseModel = loadTemplate("templates/api/models/Base.js")
+    var UserModel = loadTemplate("templates/api/models/User.js")
+    var MockupModel = loadTemplate("templates/api/models/Mockup.js")
 
     // Config files
     var config = loadTemplate("config/config.js")
@@ -79,46 +89,69 @@ var createApplication = function(app_name, path) {
     var modelMockup = loadTemplate("config/models/Mockup.js")
 
     // Frontend part
-    var frontendController = loadTemplate("base/frontend/controller.js")
-    var layout = loadTemplate("base/frontend/layout.jade")
-    var view = loadTemplate("base/frontend/view.jade")
+    var frontendController = loadTemplate("templates/frontend/controller.js")
+    var layout = loadTemplate("templates/frontend/layout.jade")
+    var view = loadTemplate("templates/frontend/view.jade")
 
     mkdir(path, function() {
-        mkdir(path + "/app")
-        mkdir(path + "/app/api")
-        mkdir(path + "/app/api/controllers")
-
-        mkdir(path + "/app/frontend")
-        mkdir(path + "/app/frontend/controllers", function() {
-            write(path + "/app/frontend/controllers/index.js", frontendController)
-        })
-
-        mkdir(path + "/app/frontend/views/index", function() {
-            write(path + "/app/frontend/views/index/index.jade", view)
-        })
-
-        mkdir(path + "/app/frontend/views/layouts", function() {
-            layout = layout.replace("{NAME}", app_name)
-            write(path + "/app/frontend/views/layouts/default.jade", layout)
-        })
-        mkdir(path + "/app/models")
-        mkdir(path + "/app/generated")
-        mkdir(path + "/app/generated/models")
-        mkdir(path + "/app/controllers")
-        mkdir(path + "/app/middleware")
-
-        mkdir(path + "/base", function() {
-            write(path + "/base/controller.js", controller)
-            write(path + "/base/express.js", express)
-            write(path + "/base/redis.js", redis)
-            write(path + "/base/User.js", User)
-            write(path + "/base/userController.js", userController)
+        mkdir(path + "/app", function() {
+            write(path + "/app/router.js", router)
+            write(path + "/app/express.js", express)
             complete()
         })
-        mkdir(path + "/base/middleware", function() {
-            write(path + "/base/middleware/pagination.js", pagination)
-            write(path + "/base/middleware/passport.js", passport)
-            write(path + "/base/middleware/verification.js", verification)
+
+        // Api part
+        mkdir(path + "/app/api")
+
+        // Controllers
+        mkdir(path + "/app/api/controllers", function() {
+            write(path + "/app/api/controllers/base.js", baseController)
+            write(path + "/app/api/controllers/mockup.js", mockupController)
+            write(path + "/app/api/controllers/user.js", userController)
+            complete()
+        })
+
+        // Models
+        mkdir(path + "/app/api/models", function() {            
+            write(path + "/app/api/models/User.js", UserModel)
+            write(path + "/app/api/models/Base.js", BaseModel)
+            write(path + "/app/api/models/Mockup.js", MockupModel)
+            complete()
+        })
+
+        // Frontend part
+        mkdir(path + "/app/frontend")
+
+        // Frontend controllers
+        mkdir(path + "/app/frontend/controllers", function() {
+            write(path + "/app/frontend/controllers/index.js", frontendController)
+            complete()
+        })
+
+        // Views
+        mkdir(path + "/app/frontend/views/index", function() {
+            write(path + "/app/frontend/views/index/index.jade", view)
+            complete()
+        })
+
+        // Layouts
+        mkdir(path + "/app/frontend/views/layouts", function() {
+            write(path + "/app/frontend/views/layouts/default.jade", layout)
+            complete()
+        })
+
+        // Public folders
+        mkdir(path + '/public');
+        mkdir(path + '/public/javascripts');
+        mkdir(path + '/public/images');        
+        mkdir(path + '/public/stylesheets');
+
+        // Middleware
+        mkdir(path + "/app/middleware", function() {
+            write(path + "/app/middleware/pagination.js", pagination)
+            write(path + "/app/middleware/passport.js", passport)
+            write(path + "/app/middleware/verification.js", verification)
+            write(path + "/app/middleware/redis.js", redis)
             complete()
         })
 
@@ -184,7 +217,7 @@ var createApplication = function(app_name, path) {
         write(path + '/package.json', JSON.stringify(pkg, null, 4));
         write(path + "/server.js", server)
         if (program.git) {
-            write(path + '/.gitignore', fs.readFileSync(__dirname + '/../base/gitignore', 'utf-8'));
+            write(path + '/.gitignore', fs.readFileSync(__dirname + '/../templates/gitignore', 'utf-8'));
         }
         complete()
     })
