@@ -179,7 +179,7 @@ var createApplication = function(app_name, path) {
         // package.json
         var pkg = {
             name: app_name,
-            version: '0.0.0',
+            version: '0.0.1',
             private: true,
             scripts: {
                 start: 'node server.js'
