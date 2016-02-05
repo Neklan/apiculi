@@ -1,7 +1,6 @@
 {
     "bin": {
-        "api-generator": "bin/api-generator.js",
-        "api-refresher": "bin/api-refresher.js"
+        "apiculi": "bin/apiculi.js"
     },
     "dependencies": {
         "body-parser": "~1.13.2",
@@ -45,8 +44,9 @@
         "web"
     ],
     "license": "MIT",
-    "main": "bin/api-generator.js",
-    "name": "api-generator",
+    "main": "bin/apiculi.js",
+    "name": "apiculi",
+    "author": "Tomas Herma <tomas.herma@gmail.com>",
     "preferGlobal": true,
     "version": "0.0.1"
 }
