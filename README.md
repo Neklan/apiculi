@@ -45,6 +45,10 @@ This generator can also be further configured with the following command line fl
     -m, --mongo <url>  set mongo connection url
     -r, --redis <url>  set redis connection url
 
+## Config
+
+After creating app structure, you will find config folder with config files in it. Take a look at the models files. There you can manage your models easily, just define your schema and name of model and Apiculi logic does a rest. 
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
