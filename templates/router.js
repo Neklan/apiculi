@@ -122,8 +122,7 @@ module.exports = function(app) {
             }
         }
         app[route.type](route.endpoint, route.middleware, function(req, res) {
-
-            if (controller) {
+            if (controller && controller[route.method]) {
                 if (Model.modelName == "User") {
                     controller[route.method](req, Model, function(status, result) {
                         responseCallback(res, status, result)
@@ -133,15 +132,22 @@ module.exports = function(app) {
                 }
 
             } else {
-                baseController[route.method](req, Model, function(status, result) {
-                    responseCallback(res, status, result)
-                })
-            }
+                if (baseController[route.method]) {
+                    baseController[route.method](req, Model, function(status, result) {
+                        responseCallback(res, status, result)
+                    })
+                } else {
+                    res.status(404).json({
+                        type: 'error',
+                        description: 'This endpoint does not exist.'
+                    })
+                }
 
+            }
         })
     }
 
-    _.each(config.models, function(model) {
+    _.each(config.models, function(model, index) {
         if (model.name == "User") {
             if (config.users) {
                 var User = mongoose.model("User")
@@ -156,35 +162,29 @@ module.exports = function(app) {
         } else {
             var name = model.name.toLowerCase()
             var routeName = model.routeName || name
-            var path = "./api/controllers/" + name
-            var exists = fs.existsSync(path)
-            var controller = null
-            var Model = mongoose.model(model.name)
-            if (exists) {
-                controller = require(path)
-            }
-            var modelRoutes = routes[name] || routes.base
-            _.each(modelRoutes.urls, function(route) {
-                if (!route.middleware) {
-                    route.middleware = modelRoutes.middleware
+            var path = process.cwd() + "/app/api/controllers/" + name + ".js"
+            fs.access(path, function(err) {
+                var controller = null
+                var Model = mongoose.model(model.name)
+                if (err == null) {
+                    controller = require(path)
                 }
-                route.endpoint = route.endpoint.replace("ROUTE_NAME", routeName)
-                if (route.method == "changePosition") {
-                    if (model.positionable) {
-                        generateRoute(route, controller, Model)
+                var modelRoutes = routes[name] || routes.base
+                _.each(modelRoutes.urls, function(route) {
+                    var routeObject = _.clone(route)
+                    if (!routeObject.middleware) {
+                        routeObject.middleware = modelRoutes.middleware
                     }
-                } else {
-                    generateRoute(route, controller, Model)
-                }
+                    routeObject.endpoint = routeObject.endpoint.replace("ROUTE_NAME", routeName)
+                    if (routeObject.method == "changePosition") {
+                        if (model.positionable) {
+                            generateRoute(routeObject, controller, Model)
+                        }
+                    } else {
+                        generateRoute(routeObject, controller, Model)
+                    }
+                })
             })
         }
     })
-
-    app.all('*', function(req, res) {
-        res.status(404).json({
-            type: 'error',
-            description: 'This endpoint does not exist.'
-        })
-    })
-
 }
