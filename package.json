@@ -2,6 +2,10 @@
     "bin": {
         "apiculi": "bin/apiculi.js"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Neklan/apiculi"
+    },
     "dependencies": {
         "body-parser": "~1.13.2",
         "commander": "^2.9.0",
