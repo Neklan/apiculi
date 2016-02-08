@@ -5,7 +5,8 @@ var env = process.env.NODE_ENV || 'local',
     flash = require('connect-flash'),
     cookieParser = require("cookie-parser"),
     logger = require("morgan"),
-    session = require("express-session")
+    session = require("express-session"),
+    express = require("express")
 
 
 
@@ -26,6 +27,7 @@ module.exports = function(app, sessionStore, passport, config) {
     app.set('port', process.env.PORT || config[env].port);
     app.use(logger(":method :url :response-time ms - :res[content-length] b"))
 
+    app.use(express.static(process.cwd() + '/public'))
     app.set('views', require('path').normalize(__dirname) + '/../app/frontend/views')
     app.set('view engine', 'jade');
     app.set('view options', {
