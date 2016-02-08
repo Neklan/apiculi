@@ -169,11 +169,11 @@ module.exports = function(app) {
                 if (err == null) {
                     controller = require(path)
                 }
-                var modelRoutes = routes[name] || routes.base
+                var modelRoutes = routes[name] && routes[name].urls ? routes[name] : routes.base
                 _.each(modelRoutes.urls, function(route) {
                     var routeObject = _.clone(route)
-                    if (!routeObject.middleware) {
-                        routeObject.middleware = modelRoutes.middleware
+                    if (!routeObject.middleware && routes[name] && routes[name].middleware) {
+                        routeObject.middleware = routes[name].middleware
                     }
                     routeObject.endpoint = routeObject.endpoint.replace("ROUTE_NAME", routeName)
                     if (routeObject.method == "changePosition") {
@@ -185,6 +185,9 @@ module.exports = function(app) {
                     }
                 })
             })
+
         }
     })
+
+
 }
