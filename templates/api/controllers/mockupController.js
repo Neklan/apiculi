@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
     Mockup = mongoose.model('Mockup'),
-    baseController = require('./baseController.js');
+    baseController = require('./base.js');
 
 exports.create = function(req, res) {
     baseController.create(req, Mockup, function(status, result) {

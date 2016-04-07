@@ -64,7 +64,8 @@ var createApplication = function(app_name, path) {
 
     // Base settings
     var express = loadTemplate("templates/express.js")
-    var router = loadTemplate("templates/router.js")    
+    var router = loadTemplate("templates/router.js")
+    var routes = loadTemplate("templates/routes.js")
 
     // Middleware
     var pagination = loadTemplate("templates/middleware/pagination.js")
@@ -96,6 +97,7 @@ var createApplication = function(app_name, path) {
     mkdir(path, function() {
         mkdir(path + "/app", function() {
             write(path + "/app/router.js", router)
+            write(path + "/app/routes.js", routes)
             write(path + "/app/express.js", express)
             complete()
         })
