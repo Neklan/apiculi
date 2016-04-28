@@ -72,6 +72,7 @@ var createApplication = function(app_name, path) {
     var passport = loadTemplate("templates/middleware/passport.js")
     var verification = loadTemplate("templates/middleware/verification.js")
     var redis = loadTemplate("templates/middleware/redis.js")
+    var response = loadTemplate("templates/middleware/response.js")
 
     // Api controllers
     var baseController = loadTemplate("templates/api/controllers/baseController.js")
@@ -154,6 +155,7 @@ var createApplication = function(app_name, path) {
             write(path + "/app/middleware/passport.js", passport)
             write(path + "/app/middleware/verification.js", verification)
             write(path + "/app/middleware/redis.js", redis)
+            write(path + "/app/middleware/response.js", response)
             complete()
         })
 
