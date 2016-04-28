@@ -19,11 +19,13 @@ function generateToken(data, next) {
         timeout: 14 * 24 * 60 * 60,
         prefix: prefix
     }
-    facilitator.generate(data, facilitatorOptions, function(err, token) {
-        if (err)
-            console.error(err)
-        next(token)
-    })
+    facilitator.generate(data, facilitatorOptions)
+        .catch(function(err) {
+            console.log(err)
+        })
+        .then(function(token) {
+            next(token)
+        })
 }
 
 function getKeyFromToken(token) {
