@@ -4,12 +4,17 @@ var mongoose = require('mongoose'),
     crypto = require("crypto"),
     config = require('../../../config/config.js'),
     _ = require("underscore"),
+    shortid = require('shortid'),
     configModel = _.findWhere(config.models, {
         name: "User"
     })
 
 
 var requiredSchema = {
+    _id: {
+        type: String,
+        default: shortid.generate
+    },
     email: {
         type: String,
         required: true,

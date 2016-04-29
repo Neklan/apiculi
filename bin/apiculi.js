@@ -115,7 +115,7 @@ var createApplication = function(app_name, path) {
         })
 
         // Models
-        mkdir(path + "/app/api/models", function() {            
+        mkdir(path + "/app/api/models", function() {
             write(path + "/app/api/models/User.js", UserModel)
             write(path + "/app/api/models/Base.js", BaseModel)
             write(path + "/app/api/models/Mockup.js", MockupModel)
@@ -146,7 +146,7 @@ var createApplication = function(app_name, path) {
         // Public folders
         mkdir(path + '/public');
         mkdir(path + '/public/javascripts');
-        mkdir(path + '/public/images');        
+        mkdir(path + '/public/images');
         mkdir(path + '/public/stylesheets');
 
         // Middleware
@@ -212,6 +212,7 @@ var createApplication = function(app_name, path) {
                 "redis": "latest",
                 "request": "latest",
                 "serve-favicon": "^2.3.0",
+                "shortid": "^2.2.6",
                 "token-facilitator": "latest",
                 "underscore": "latest"
             }
