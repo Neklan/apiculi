@@ -46,7 +46,7 @@ module.exports = {
             endpoint: "/api/users/me",
             method: "getMe"
         }, {
-            type: "get",
+            type: "post",
             endpoint: "/api/users/access_token",
             method: "accessToken",
             middleware: [passport.authenticate('local', {

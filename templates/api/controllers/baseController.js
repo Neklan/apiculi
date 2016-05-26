@@ -16,8 +16,6 @@ exports.create = function(req, Model, next) {
     })
     var save = function(lastItem) {
         var item = new Model(req.body)
-        item.set("updatedAt", new Date().getTime())
-        item.set("createdAt", new Date().getTime())
         if (configModel.positionable) {
             item.set("position", lastItem != null ? lastItem.get("position") + 1 : 0)
         }
@@ -107,7 +105,7 @@ exports.update = function(req, Model, next) {
                 item.set(key, value)
             })
             item.set("__v", item.get("__v") + 1)
-            item.set("updatedAt", new Date().getTime())
+            item.set("updatedAt", Date())
             item.save(function(err) {
                 next({
                     code: 200,

@@ -29,8 +29,6 @@ exports.register = function(req, User, next) {
                     })
                 } else {
                     var user = new User(req.body);
-                    user.set("updatedAt", new Date().getTime())
-                    user.set("createdAt", new Date().getTime())
                     user.set("isAdmin", count == 0 ? true : false);
                     user.set("isActivated", count == 0 ? true : false);
                     user.set("salt", user.makeSalt());
@@ -169,7 +167,7 @@ exports.updateMe = function(req, User, next) {
             })
 
             user.set("__v", user.get("__v") + 1)
-            user.set("updatedAt", new Date().getTime())
+            user.set("updatedAt", Date())
             user.save(function(err) {
                 next({
                     code: 200,
@@ -207,7 +205,7 @@ exports.updateById = function(req, User, next) {
             })
 
             user.set("__v", user.get("__v") + 1)
-            user.set("updatedAt", new Date().getTime())
+            user.set("updatedAt", Date())
             user.save(function(err) {
                 next({
                     code: 200,

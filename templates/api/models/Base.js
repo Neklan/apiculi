@@ -7,10 +7,18 @@ var mongoose = require('mongoose'),
 
 _.each(config.models, function(model) {
     if (model.name != "User") {
-        if(model.schema) {
+        if (model.schema) {
             model.schema._id = {
                 type: String,
                 default: shortid.generate
+            }
+            model.schema.createdAt = {
+                type: Date,
+                default: Date
+            },
+            model.schema.updatedAt = {
+                type: Date,
+                default: Date
             }
         }
         var ModelSchema = new Schema(model.schema || {})
