@@ -11,6 +11,7 @@ var parseErrors = function(err) {
 
 exports.register = function(req, User, next) {
     User.count({}, function(err, count) {
+        req.body.email = req.body.email.toLowerCase()
         User.findOne({
             email: req.body.email
         }, function(err, user) {

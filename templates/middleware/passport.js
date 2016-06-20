@@ -41,6 +41,7 @@ module.exports = function(passport) {
         },
 
         function(email, password, done) {
+            email = email.toLowerCase()
             User.findOne({
                 email: email
             }, function(err, user) {

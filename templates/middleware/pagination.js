@@ -10,9 +10,11 @@ exports.init = function(req) {
     }
     if (req.query.sortBy != null) {
         var parts = req.query.sortBy.split(" ")
-        if (parts[0] != null) {
+        if(parts.length) {
             options.sortBy = {}
-            options.sortBy[parts[0]] = parts[1] || 1
+            for(var i = 0; i < parts.length; i += 2) {
+                options.sortBy[parts[i]] = parts[i + 1] || 1
+            }
         }
     }
     return options
