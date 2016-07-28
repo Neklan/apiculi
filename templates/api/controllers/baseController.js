@@ -2,6 +2,13 @@ var pagination = require("../../middleware/pagination"),
     _ = require("underscore"),
     config = require("../../../config/config")
 
+var urlify = require("urlify").create({
+    spaces: "-",
+    nonPrintable: "-",
+    toLower: true,
+    trim: true
+});
+
 var parseErrors = function(err) {
     var errors = []
     _.each(err.errors, function(error) {
@@ -16,6 +23,7 @@ exports.create = function(req, Model, next) {
     })
     var save = function(lastItem) {
         var item = new Model(req.body)
+        item.url = urlify(item.name)
         if (configModel.positionable) {
             item.set("position", lastItem != null ? lastItem.get("position") + 1 : 0)
         }
@@ -104,6 +112,7 @@ exports.update = function(req, Model, next) {
             _.each(req.body, function(value, key) {
                 item.set(key, value)
             })
+            item.url = urlify(item.name)
             item.set("__v", item.get("__v") + 1)
             item.set("updatedAt", Date())
             item.save(function(err) {

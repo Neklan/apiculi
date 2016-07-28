@@ -214,7 +214,8 @@ var createApplication = function(app_name, path) {
                 "serve-favicon": "^2.3.0",
                 "shortid": "^2.2.6",
                 "token-facilitator": "latest",
-                "underscore": "latest"
+                "underscore": "latest",
+                "urlify": "latest"
             }
         }
 

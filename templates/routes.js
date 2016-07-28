@@ -1,4 +1,5 @@
-var passport = require("passport")
+var passport = require("passport"),
+    verification = require("./middleware/verification")
 
 module.exports = {
     base: {
@@ -71,15 +72,24 @@ module.exports = {
         }, {
             type: "put",
             endpoint: "/api/users/:id",
-            method: "updateById"
+            method: "updateById",
+            middleware: [passport.authenticate("bearer", {
+                session: false
+            }), verification.isAdmin]
         }, {
             type: "delete",
             endpoint: "/api/users/:id",
-            method: "deleteById"
+            method: "deleteById",
+            middleware: [passport.authenticate("bearer", {
+                session: false
+            }), verification.isAdmin]
         }, {
             type: "delete",
             endpoint: "/api/users",
-            method: "deleteAll"
+            method: "deleteAll",
+            middleware: [passport.authenticate("bearer", {
+                session: false
+            }), verification.isAdmin]
         }]
     }
 }
