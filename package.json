@@ -18,7 +18,7 @@
     "express-session": "^1.13.0",
     "form-data": "^1.0.0-rc3",
     "iconv": "^2.1.11",
-    "jade": "~1.11.0",
+    "pug": "^2.0.0-beta5",
     "js-beautify": "^1.6.2",
     "mongoose": "latest",
     "mongoose-paginate": "^4.2.0",
@@ -53,5 +53,5 @@
   "name": "apiculi",
   "author": "Tomas Herma <tomas.herma@gmail.com>",
   "preferGlobal": true,
-  "version": "0.0.11"
+  "version": "0.0.12"
 }

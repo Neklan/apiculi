@@ -199,7 +199,7 @@ var createApplication = function(app_name, path) {
                 "express-session": "^1.13.0",
                 "form-data": "^1.0.0-rc3",
                 "iconv": "^2.1.11",
-                "pug": "^2.0.0",
+                "pug": "^2.0.0-beta5",
                 "js-beautify": "^1.6.2",
                 "mongoose": "latest",
                 "mongoose-paginate": "^4.2.0",
