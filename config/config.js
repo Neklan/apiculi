@@ -6,4 +6,9 @@ module.exports = {
         mongo: "MONGO_CONNECTION_URL",
         redis: "REDIS_CONNECTION_URL"
     },
+    production: {
+        port: 3000,
+        mongo: "MONGO_CONNECTION_URL",
+        redis: "REDIS_CONNECTION_URL"
+    }
 }

@@ -92,8 +92,8 @@ var createApplication = function(app_name, path) {
 
     // Frontend part
     var frontendController = loadTemplate("templates/frontend/controller.js")
-    var layout = loadTemplate("templates/frontend/layout.jade")
-    var view = loadTemplate("templates/frontend/view.jade")
+    var layout = loadTemplate("templates/frontend/layout.pug")
+    var view = loadTemplate("templates/frontend/view.pug")
 
     mkdir(path, function() {
         mkdir(path + "/app", function() {
@@ -133,13 +133,13 @@ var createApplication = function(app_name, path) {
 
         // Views
         mkdir(path + "/app/frontend/views/index", function() {
-            write(path + "/app/frontend/views/index/index.jade", view)
+            write(path + "/app/frontend/views/index/index.pug", view)
             complete()
         })
 
         // Layouts
         mkdir(path + "/app/frontend/views/layouts", function() {
-            write(path + "/app/frontend/views/layouts/default.jade", layout)
+            write(path + "/app/frontend/views/layouts/default.pug", layout)
             complete()
         })
 
@@ -199,7 +199,7 @@ var createApplication = function(app_name, path) {
                 "express-session": "^1.13.0",
                 "form-data": "^1.0.0-rc3",
                 "iconv": "^2.1.11",
-                "jade": "~1.11.0",
+                "pug": "^2.0.0",
                 "js-beautify": "^1.6.2",
                 "mongoose": "latest",
                 "mongoose-paginate": "^4.2.0",

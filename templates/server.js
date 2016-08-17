@@ -28,7 +28,9 @@ if (config.users) {
     require('./app/middleware/passport')(passport)
 }
 
-mongoose.connect(config[env].mongo)
+if(config[env].mongo != "MONGO_CONNECTION_URL") {
+    mongoose.connect(config[env].mongo)
+}
 
 var app = express();
 

@@ -29,7 +29,7 @@ module.exports = function(app, sessionStore, passport, config) {
 
     app.use(express.static(process.cwd() + '/public'))
     app.set('views', require('path').normalize(__dirname) + '/../app/frontend/views')
-    app.set('view engine', 'jade');
+    app.set('view engine', 'pug');
     app.set('view options', {
         layout: 'layouts/default'
     })
