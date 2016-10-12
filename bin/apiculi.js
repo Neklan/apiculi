@@ -202,7 +202,7 @@ var createApplication = function(app_name, path) {
                 "pug": "^2.0.0-beta5",
                 "js-beautify": "^1.6.2",
                 "mongoose": "latest",
-                "mongoose-paginate": "^4.2.0",
+                "mongoose-paginate": "^5.0.3",
                 "morgan": "~1.6.1",
                 "multer": "latest",
                 "node-uuid": "latest",

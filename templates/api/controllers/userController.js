@@ -95,17 +95,12 @@ exports.activate = function(req, User, next) {
 
 exports.getAll = function(req, User, next) {
     var options = pagination.init(req)
-    User.count({}, function(err, count) {
-        User.paginate({}, options, function(err, users) {
-            next({
-                code: 200,
-                type: "success"
+    User.paginate({}, options, function(err, users) {
+        next({
+            code: 200,
+            type: "success"
 
-            }, {
-                results: users,
-                total: count
-            })
-        })
+        }, users)
     })
 }
 

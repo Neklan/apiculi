@@ -57,17 +57,12 @@ exports.create = function(req, Model, next) {
 
 exports.getAll = function(req, Model, next) {
     var options = pagination.init(req)
-    Model.count({}, function(err, count) {
-        Model.paginate({}, options, function(err, results) {
-            next({
-                code: 200,
-                type: "success"
+    Model.paginate({}, options, function(err, results) {
+        next({
+            code: 200,
+            type: "success"
 
-            }, {
-                results: results,
-                total: count
-            })
-        })
+        }, results)
     })
 }
 
@@ -106,7 +101,7 @@ exports.update = function(req, Model, next) {
         if (item) {
             delete req.body._id
             delete req.body.createdAt
-            if(configModel.positionable) {
+            if (configModel.positionable) {
                 delete req.body.position
             }
             _.each(req.body, function(value, key) {
