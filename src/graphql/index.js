@@ -8,6 +8,8 @@ import { CustomError } from './errors/error'
 import pubsub from '../middleware/pubsub'
 import { withFilter } from 'graphql-subscriptions'
 
+import indexController from './controllers/index'
+
 import { batch } from './batch'
 
 const Query = `
@@ -43,9 +45,7 @@ export default makeExecutableSchema({
     typeDefs: [SchemaDefinition, Query, Mutation, Subscription, Types],
     resolvers: {
         Query: {
-            getMessage: () => {
-                return 'Hellow Apiculi'
-            }
+            getMessage: indexController.getMessage
         },
         Mutation: {
             createMessage: (obj, args) => {

@@ -1,0 +1,3 @@
+exports.getMessage = () => {
+    return 'Hello'
+}
