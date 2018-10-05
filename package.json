@@ -1,57 +1,52 @@
 {
-  "bin": {
-    "apiculi": "bin/apiculi.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Neklan/apiculi"
-  },
-  "dependencies": {
-    "body-parser": "~1.13.2",
-    "commander": "^2.9.0",
-    "connect-flash": "^0.1.1",
-    "connect-redis": "^3.0.2",
-    "cookie-parser": "~1.3.5",
-    "crypto": "latest",
-    "debug": "~2.2.0",
-    "express": "~4.13.1",
-    "express-session": "^1.13.0",
-    "form-data": "^1.0.0-rc3",
-    "iconv": "^2.1.11",
-    "pug": "^2.0.0-beta5",
-    "js-beautify": "^1.6.2",
-    "mongoose": "latest",
-    "mongoose-paginate": "^4.2.0",
-    "morgan": "~1.6.1",
-    "multer": "latest",
-    "node-uuid": "latest",
-    "passport": "latest",
-    "passport-http-bearer": "latest",
-    "passport-local": "latest",
-    "redis": "latest",
-    "request": "latest",
-    "serve-favicon": "^2.3.0",
-    "token-facilitator": "latest",
-    "underscore": "latest",
-    "urlify": "^0.3.6"
-  },
-  "devDependencies": {},
-  "gitHead": "47dcb6d68180ca2b897b59c7617cc39f1d8ebaf9",
-  "keywords": [
-    "api",
-    "generator",
-    "app",
-    "crud",
-    "express",
-    "framework",
-    "rest",
-    "restful",
-    "web"
-  ],
-  "license": "MIT",
-  "main": "bin/apiculi.js",
-  "name": "apiculi",
-  "author": "Tomas Herma <tomas.herma@gmail.com>",
-  "preferGlobal": true,
-  "version": "0.0.13"
+    "license": "MIT",
+    "name": "Apiculi",
+    "version": "2.0.0",
+    "description": "Boilerplate for rest api with graphql.",
+    "author": "Tomas Herma <tomas.herma@gmail.com>",
+    "scripts": {
+        "dev": "nodemon -w src --exec \"babel-node src --presets es2015,stage-0\"",
+        "build": "babel src -s -D -d dist --presets es2015,stage-0",
+        "start": "node dist",
+        "prestart": "npm run -s build",
+        "test": "eslint src"
+    },
+    "eslintConfig": {
+        "extends": "eslint:recommended",
+        "parserOptions": {
+            "ecmaVersion": 7,
+            "sourceType": "module"
+        },
+        "env": {
+            "node": true
+        },
+        "rules": {
+            "no-console": 0,
+            "no-unused-vars": 1
+        }
+    },
+    "dependencies": {
+        "apollo-errors": "^1.9.0",
+        "apollo-server-express": "^2.1.0",
+        "body-parser": "^1.18.3",
+        "cors": "^2.8.4",
+        "express": "^4.16.3",
+        "graphql": "^14.0.2",
+        "graphql-resolve-batch": "^1.0.2",
+        "graphql-subscriptions": "^1.0.0",
+        "graphql-tools": "^4.0.0",
+        "mongoose": "^5.3.1",
+        "mongoose-paginate": "^5.0.3",
+        "morgan": "^1.9.1",
+        "shortid": "^2.2.13",
+        "subscriptions-transport-ws": "^0.9.15"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-core": "^6.26.3",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-preset-stage-0": "^6.24.1",
+        "eslint": "^5.6.1",
+        "nodemon": "^1.18.4"
+    }
 }
