@@ -4,9 +4,9 @@ import cors from 'cors'
 import morgan from 'morgan'
 import bodyParser from 'body-parser'
 import mongoose from 'mongoose'
+import db from './db'
 import config from './config'
 import router from './router'
-import db from './db'
 
 let app = express()
 app.server = http.createServer(app)
@@ -42,7 +42,6 @@ if (config.mongo) {
         }
     )
     mongoose.set('debug', process.env.NODE_ENV != 'production')
-    db.init()
 }
 app.use('/', router(app))
 
